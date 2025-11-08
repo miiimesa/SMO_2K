@@ -6,15 +6,26 @@
   <title>สีฐานเฟสติวัล 2568 — SMO2K</title>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/style.css">
-</head>
-  <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>สีฐานเฟสติวัล 2568 — SMO2K</title>
-  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../assets/style.css">
 
   <style>
+    /* แถบด้านบนของอัลบั้ม (ไม่มีโลโก้) */
+    .album-header{
+      background:#3B4A6B;
+      color:#fff;
+      padding:12px 16px;
+      border-radius:6px;
+      margin-bottom:18px;
+    }
+    .album-header h1{
+      margin:0;
+      font-size:18px;
+    }
+    .album-header p{
+      margin:4px 0 0;
+      font-size:13px;
+      color:#e6eef7;
+    }
+
     /* ปุ่ม Download และ Grid รูป */
     .controls{
       display:flex;
@@ -46,31 +57,80 @@
   </style>
 </head>
 <body>
+
   <header class="site-header">
-  <div class="container header-inner">
-    <a href="../../index.html"><img src="../../assets/Logo.png" alt="SMO2K Logo" class="logo"></a>
-    <div class="title">
-      <h1>สีฐานเฟสติวัล 2568</h1>
-      <p class="subtitle">5 พฤศจิกายน 2568 — สีฐานเฟสติวัล 2568</p>
+    <div class="container">
+      <div class="album-header">
+        <h1>สีฐานเฟสติวัล 2568</h1>
+        <p>5 พฤศจิกายน 2568 — สีฐานเฟสติวัล 2568</p>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
 
   <main class="container">
-  <div class="controls">
-    <button id="downloadAll" class="btn">📦 Download All Photos</button>
-    <span id="status" style="color:var(--muted);font-size:14px"></span>
-  </div>
+    <div class="controls">
+      <button id="downloadAll" class="btn">📦 Download All Photos</button>
+      <span id="status" style="color:var(--muted);font-size:14px"></span>
+    </div>
 
-  <section class="album-grid" id="photoGrid">
-    <img src="IMG_2203.JPG" alt="1">
-    <img src="IMG_2204.JPG" alt="2">
-    <img src="IMG_2205.JPG" alt="3">
-  </section>
-</main>
+    <section class="album-grid" id="photoGrid">
+      <img src="IMG_2203.jpg" alt="1">
+      <img src="IMG_2204.jpg" alt="2">
+      <img src="IMG_2205.jpg" alt="3">
+    </section>
+  </main>
 
   <footer class="site-footer">
     <div class="container">© SMO2K</div>
   </footer>
+
+  <!-- JS: Download All Photos -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <script>
+    const btn = document.getElementById('downloadAll');
+    const status = document.getElementById('status');
+
+    async function downloadAllImages() {
+      const imgs = Array.from(document.querySelectorAll('#photoGrid img'));
+      if(!imgs.length) return alert('ไม่มีรูปในอัลบั้มนี้');
+
+      btn.disabled = true;
+      status.textContent = 'กำลังเตรียมไฟล์...';
+
+      try {
+        const zip = new JSZip();
+        const folder = zip.folder('seethan2568'); // ชื่อโฟลเดอร์ใน zip
+
+        for (let i = 0; i < imgs.length; i++) {
+          const img = imgs[i];
+          const url = img.getAttribute('src');
+          status.textContent = ดาวน์โหลดรูป ${i+1} / ${imgs.length} ...;
+          const res = await fetch(url);
+          if(!res.ok) throw new Error('ไม่สามารถโหลดรูป: ' + url);
+          const blob = await res.blob();
+          const ext = url.split('.').pop().split('?')[0] || 'jpg';
+          const name = String(i+1).padStart(3,'0') + '.' + ext;
+          folder.file(name, blob);
+        }
+
+        status.textContent = 'กำลังบีบอัดไฟล์...';
+        const content = await zip.generateAsync({type:'blob'}, (meta) => {
+          status.textContent = บีบอัด ${Math.round(meta.percent)}%;
+        });
+
+        saveAs(content, 'seethan2568-photos.zip');
+        status.textContent = '';
+      } catch (err) {
+        console.error(err);
+        alert('เกิดข้อผิดพลาด: ' + err.message);
+        status.textContent = '';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    btn.addEventListener('click', downloadAllImages);
+  </script>
 </body>
 </html>
