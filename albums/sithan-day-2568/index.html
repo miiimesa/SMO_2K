@@ -19,10 +19,17 @@
   </header>
 
   <main class="container">
-    <section class="album-grid">
-      <p>ยังไม่มีรูป</p>
-    </section>
-  </main>
+  <div class="controls">
+    <button id="downloadAll" class="btn">📦 Download All Photos</button>
+    <span id="status" style="color:var(--muted);font-size:14px"></span>
+  </div>
+
+  <section class="album-grid" id="photoGrid">
+    <img src="IMG_2203.jpg" alt="1">
+    <img src="IMG_2204.jpg" alt="2">
+    <img src="IMG_2205.jpg" alt="3">
+  </section>
+</main>
 
   <footer class="site-footer">
     <div class="container">© SMO2K</div>
